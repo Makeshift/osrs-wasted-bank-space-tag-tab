@@ -2,7 +2,8 @@
 
 ## What is
 
-This is a terrible script that parses [mcgeer/WastedBankSpace](https://github.com/mcgeer/WastedBankSpace)'s source code to generate a bank tag layout compatible the RuneLite clients' tag tabs.
+This is a terrible script that parses [mcgeer/WastedBankSpace](https://github.com/mcgeer/WastedBankSpace)'s source code to generate a bank tag string compatible the RuneLite clients' tag tabs.
+![example of tag tab](example.png)
 
 ## How to use in RuneLite
 
