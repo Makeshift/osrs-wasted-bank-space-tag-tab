@@ -11,9 +11,6 @@ This is a terrible script that parses [mcgeer/WastedBankSpace](https://github.co
 - Open your bank in OSRS, right click the `+` button at the top left and select `Import tag tab`
 ![import tag tab button](import.png)
 
-If you aren't interested in the layout and simply want a tab containing only the wasted bank slots, right-click the tab and select `Delete layout`
-![delete layout button](delete-layout.png)
-
 ## Development / Manual Generation
 
 To install dependencies:

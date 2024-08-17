@@ -83,6 +83,9 @@ const categorisedItemIds = Object.fromEntries(
 )
 const allItemIds = Object.values(categorisedItemIds).flat()
 
+// Generating it with a layout breaks the bank because there's too many items
+// Realistically, it's not that useful anyway.
+/*
 let generatedLayout = 'banktaglayoutsplugin:wastedbankslots,'
 
 let currentSlot = 0
@@ -95,9 +98,10 @@ for (const [, itemIds] of Object.entries(categorisedItemIds)) {
   // We want to skip the rest of the current row and the whole next row
   currentSlot += (16 - (currentSlot % 8))
 }
+*/
 
 // Handle runelite vanilla with no layout data
-generatedLayout += 'banktag:wastedbankslots,1038,' + allItemIds.join(',')
+const generatedLayout = 'banktag:wastedbankslots,1038,' + allItemIds.join(',')
 
 await Bun.write('generated-tab.txt', generatedLayout)
 
