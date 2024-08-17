@@ -4,6 +4,9 @@ import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
 import Git from 'simple-git'
 
+const outputDir = 'output'
+await fs.mkdir(outputDir, { recursive: true })
+
 const wbsGit = Git()
 const rlGit = Git()
 
@@ -83,26 +86,34 @@ const categorisedItemIds = Object.fromEntries(
 )
 const allItemIds = Object.values(categorisedItemIds).flat()
 
-// Generating it with a layout breaks the bank because there's too many items
-// Realistically, it's not that useful anyway.
-/*
-let generatedLayout = 'banktaglayoutsplugin:wastedbankslots,'
+const vanillaTags = 'banktag:wastedbankslots,1038,' + allItemIds.join(',')
+
+await Bun.write(join(outputDir, 'vanilla.txt'), vanillaTags)
+
+let withLayout = 'banktaglayoutsplugin:wastedbankslots,'
 
 let currentSlot = 0
 for (const [, itemIds] of Object.entries(categorisedItemIds)) {
   for (const itemId of itemIds) {
-    generatedLayout += `${itemId}:${currentSlot},`
+    withLayout += `${itemId}:${currentSlot},`
     currentSlot++
   }
-  // Bank has 8 slots per row
-  // We want to skip the rest of the current row and the whole next row
-  currentSlot += (16 - (currentSlot % 8))
+  // Bank has 8 slots per row, skip the rest of the row
+  currentSlot += currentSlot % 8
 }
-*/
 
-// Handle runelite vanilla with no layout data
-const generatedLayout = 'banktag:wastedbankslots,1038,' + allItemIds.join(',')
+withLayout += 'banktag:' + vanillaTags
 
-await Bun.write('generated-tab.txt', generatedLayout)
+await Bun.write(join(outputDir, 'with-layout.txt'), withLayout)
+
+let tagPerCategory = ''
+
+for (const [category, itemIds] of Object.entries(categorisedItemIds)) {
+  tagPerCategory += `// ${category}\n`
+  tagPerCategory += `${category.toLowerCase()},${itemIds.join(',')}\n\n`
+}
+
+await Bun.write(join(outputDir, 'tag-per-category.txt'), tagPerCategory)
+
 
 console.log('Done!')
