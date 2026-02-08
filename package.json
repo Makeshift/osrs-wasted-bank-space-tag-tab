@@ -6,10 +6,10 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "axios": "^1.7.4",
-    "simple-git": "^3.25.0"
+    "axios": "^1.13.5",
+    "simple-git": "^3.30.0"
   }
 }

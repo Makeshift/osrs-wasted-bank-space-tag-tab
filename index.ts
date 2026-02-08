@@ -7,9 +7,6 @@ import Git from 'simple-git'
 const outputDir = 'output'
 await fs.mkdir(outputDir, { recursive: true })
 
-const wbsGit = Git()
-const rlGit = Git()
-
 const wbsRelativeLocationsDir = join(...'src/main/java/com/wastedbankspace/model/locations/'.split('/'))
 const rlRelativeItemsFile = join(...'runelite-api/src/main/java/net/runelite/api/ItemID.java'.split('/'))
 
@@ -24,8 +21,10 @@ if (process.env.NODE_ENV === 'development') {
   wbsDir = join(import.meta.dir, 'wasted-bank-space')
   rlDir = join(import.meta.dir, 'runelite')
 } else {
-  wbsDir = await fs.mkdtemp(join(tmpdir(), 'wasted-bank-space-'))
-  rlDir = await fs.mkdtemp(join(tmpdir(), 'runelite-'))
+  let { } = [wbsDir, rlDir] = await Promise.all([
+    fs.mkdtemp(join(tmpdir(), 'wasted-bank-space-')),
+    fs.mkdtemp(join(tmpdir(), 'runelite-'))
+  ])
 }
 
 const wbsLocationsDir = join(wbsDir, wbsRelativeLocationsDir)
@@ -34,19 +33,24 @@ const rlItemsFile = join(rlDir, rlRelativeItemsFile)
 console.log('WBS clone dir:', wbsDir)
 console.log('RL clone dir:', rlDir)
 
+await Promise.all([
+  fs.mkdir(wbsDir, { recursive: true }),
+  fs.mkdir(rlDir, { recursive: true })
+])
+
+let wbsGit = Git(wbsDir)
+const rlGit = Git(rlDir)
+
+console.log('Cloning repositories...')
 if (
-  // Hopefully the name doesn't change, I guess. Too lazy to check for the dir because Bun doesn't have
-  //  a native way to do it yet.
   !await fs.exists(wbsLocationsDir)
   || !await fs.exists(rlItemsFile)
 ) {
-  console.log('Cloning repositories...')
   await Promise.all([
-    wbsGit.clone('https://github.com/mcgeer/WastedBankSpace.git', wbsDir, cloneOpts),
-    rlGit.clone('https://github.com/runelite/runelite.git', rlDir, cloneOpts)
+    wbsGit.clone('https://github.com/mcgeer/WastedBankSpace.git', '.', cloneOpts),
+    rlGit.clone('https://github.com/runelite/runelite.git', '.', cloneOpts)
   ])
 }
-
 // Parsing java source code with regular expressions :D This is so fragile
 
 const categoriseWbsItems = async (dir: string) => {
@@ -84,7 +88,7 @@ const categorisedItemIds = Object.fromEntries(
       return [category, itemIds]
     })
 )
-const allItemIds = Object.values(categorisedItemIds).flat()
+const allItemIds = [...new Set(Object.values(categorisedItemIds).flat())]
 
 const vanillaTags = 'banktag:wastedbankslots,1038,' + allItemIds.join(',')
 
@@ -115,5 +119,35 @@ for (const [category, itemIds] of Object.entries(categorisedItemIds)) {
 
 await Bun.write(join(outputDir, 'tag-per-category.txt'), tagPerCategory)
 
+// Meta
+const gistId = process.env.GIST_UPDATE_ID
+// I couldn't find a decent gist library so we're just shelling out to the gh cli
+if (gistId) {
+  console.log('Updating gist with id', gistId)
+  const gistReadme = Bun.spawnSync(['gh', 'gist', 'view', gistId, '--raw', '-f', 'README.md']).stdout.toString()
+  let content = gistReadme.split('### Meta')[0].trim()
+  content += `\n\n### Meta\n\nLast updated: \`${new Date().toISOString()}\` \\\n`
+  const wbsLog = await wbsGit.log()
+  content += `[mcgeer/WastedBankSpace](https://github.com/mcgeer/WastedBankSpace) commit: \`${wbsLog.latest!.hash}\` \\\n`
+  const rlLog = await rlGit.log()
+  content += `[Runelite/runelite](https://github.com/runelite/runelite) commit: \`${rlLog.latest!.hash}\` \\\n`
+  content += `[Makeshift/osrs-wasted-bank-space-tag-tab](https://github.com/Makeshift/osrs-wasted-bank-space-tag-tab) commit: \`${process.env.GITHUB_SHA}\` \\\n`
+  content += `Total item count: ${allItemIds.length} \\\n`
+  content += `Total item categories: ${Object.keys(categorisedItemIds).length}`
+  await Bun.write(join(outputDir, 'README.md'), content)
+  
+  const updates = []
+  for (const file of await fs.readdir(outputDir)) {
+    updates.push(
+      Bun.spawn([
+      'gh', 'gist', 'edit', gistId, '-f', file, join(outputDir, file)
+      ], {
+        env: process.env
+    }).exited
+        .then(result => console.log(`Updated gist file ${file} with status ${result}`))
+    )
+  }
+  await Promise.all(updates)
+}
 
 console.log('Done!')

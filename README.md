@@ -1,5 +1,9 @@
 # osrs-wasted-bank-space-tag-tab
 
+## Gist
+
+An automatically-updating gist containing the tag tabs can be found [here](https://gist.github.com/Makeshift/4178a7e6f9f277234406606511a8ad3a).
+
 ## What is
 
 This is a terrible script that parses [mcgeer/WastedBankSpace](https://github.com/mcgeer/WastedBankSpace)'s source code to generate a bank tag string compatible with the RuneLite clients' tag tabs.

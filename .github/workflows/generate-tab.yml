@@ -11,9 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
-      - run: bun run index.ts
+      - id: generate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          bun run index.ts
+          echo "date=$(date '+%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
       - uses: EndBug/add-and-commit@v9
         with:
-          message: '[GHA] Update generated tab'
+          message: '[GHA] Update generated tab (${{ steps.generate.outputs.date }})'
           push: true
