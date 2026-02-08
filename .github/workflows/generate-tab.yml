@@ -14,6 +14,7 @@ jobs:
       - id: generate
         env:
           GITHUB_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_UPDATE_ID: ${{ vars.GIST_UPDATE_ID }}
         run: |
           bun run index.ts
           echo "date=$(date '+%Y-%m-%d')" >> "$GITHUB_OUTPUT"
