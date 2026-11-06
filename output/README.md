@@ -18,9 +18,9 @@ While I've attempted to make sure this gist automatically updates, the method us
 
 ### Meta
 
-Last updated: `2026-10-30T04:01:59.247Z` \
+Last updated: `2026-11-06T04:47:42.452Z` \
 [mcgeer/WastedBankSpace](https://github.com/mcgeer/WastedBankSpace) commit: `1cb3b285c995fb7f4229a172033fcb6020d445cf` \
-[Runelite/runelite](https://github.com/runelite/runelite) commit: `71250e778a9f3c6e8abc06abc9a4112f7051743a` \
-[Makeshift/osrs-wasted-bank-space-tag-tab](https://github.com/Makeshift/osrs-wasted-bank-space-tag-tab) commit: `2b60dda6dd388b9f9406649595264a78c567142e` \
+[Runelite/runelite](https://github.com/runelite/runelite) commit: `8f2aca162a5ddd3765dd0166aea5de86522bc785` \
+[Makeshift/osrs-wasted-bank-space-tag-tab](https://github.com/Makeshift/osrs-wasted-bank-space-tag-tab) commit: `c2c488fe172d3298c65698ef3a2dc2f00f39ce6e` \
 Total item count: 2320 \
 Total item categories: 21
